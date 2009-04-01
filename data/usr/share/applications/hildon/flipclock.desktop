@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=Flip Clock
+GenericName=Flip Clock
+Exec=flipclock
+X-HildonDesk-ShowInToolbar=true
+Icon=flipclock
+X-Osso-Service=org.maemo.flipclock
+X-Osso-Type=application/x-executable
+X-Window-Icon=flipclock
+X-Window-Icon-Dimmed=flipclock
+StartupWMClass=flipclock

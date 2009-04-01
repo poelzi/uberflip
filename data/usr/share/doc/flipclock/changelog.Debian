@@ -1,0 +1,19 @@
+flipclock (0.050) unstable; urgency=low
+
+  * Lots of brilliant changes by ciroip
+
+ -- Ciro Ippolito <ciroippolito>  Sat, 20 Dec 2008 11:08:41 +0000
+
+flipclock (0.002) unstable; urgency=low
+
+  * Quilt removed
+  * Startup animation
+  * Wooden panel
+
+ -- Ciro Ippolito <ciroippolito>  Tue, 16 Dec 2008 08:04:51 +0000
+
+flipclock (0.001) unstable; urgency=low
+
+  * Initial release
+
+ -- Ciro Ippolito <ciroippolito>  Sun, 14 Dec 2008 18:07:51 +0000
