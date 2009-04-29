@@ -1,2 +1,2 @@
 #!/bin/sh
-python '/usr/lib/python2.5/site-packages/flipclock/flipclock.py'
+python '/usr/lib/python2.5/site-packages/flipclock/flipclock.py' $@
