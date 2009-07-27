@@ -3,11 +3,11 @@ Package: flipclock
 Section: user/utilities
 Priority: Optional
 Depends: python2.5, python2.5-hildon, python2.5-pygame, python2.5-gstreamer, python2.5-dbus
-Version: 0.1.9
+Version: 0.2.4
 Architecture: armel
-Description: Flip Alarm Clock - 0.1.9 Beta 
+Description: Flip Alarm Clock - 0.2.4 Nixie 
  Full screen finger friendly alarm clock.
- Two different 'skin' and 7 alarm sets.
+ Three different 'skin' and 7 alarm sets.
  Full AlarmD Integration and customization
 Maemo-Icon-26: 
  iVBORw0KGgoAAAANSUhEUgAAADsAAAA8CAMAAADv/jI5AAADAFBMVEW+AADe3t7s7Oy2trasrKzW
