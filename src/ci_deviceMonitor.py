@@ -25,20 +25,26 @@ class BMERequest(dbus.service.Object):
 
 class BatteryMonitor:
   def __init__(self):
-    self.bus = dbus.SystemBus(private=True)
-    self.bus.add_signal_receiver(self.handle_charging_off,"charger_charging_off")
-    #self.bus.add_signal_receiver(self.handle_charging_on ,"charger_charging_on" )
-    self.bus.add_signal_receiver(self.handle_charging_off,"charger_disconnected")
-    self.bus.add_signal_receiver(self.handle_charging_on ,"charger_connected" )
-    self.name = dbus.service.BusName(BME_REQ_IFC, bus=self.bus)
-    self.charging = 0
-    ci.charging = 0
-    #We assume by default that charger is attached, since this is the only possible time when we
-    #won't get a BME response
-    self.handle_charging_on(self)
-	
-    e = BMERequest(self.name)
-    e.status_info_req()
+	self.charging = 0
+
+	self.bus = dbus.SystemBus(private=True)
+	try:
+		self.name = dbus.service.BusName(BME_REQ_IFC, bus=self.bus)
+	except dbus.exceptions.DBusException:
+		return
+	self.bus.add_signal_receiver(self.handle_charging_off,"charger_charging_off")
+	#self.bus.add_signal_receiver(self.handle_charging_on ,"charger_charging_on" )
+	self.bus.add_signal_receiver(self.handle_charging_off,"charger_disconnected")
+	self.bus.add_signal_receiver(self.handle_charging_on ,"charger_connected" )
+    
+    
+	ci.charging = 0
+	#We assume by default that charger is attached, since this is the only possible time when we
+	#won't get a BME response
+	self.handle_charging_on(self)
+
+	e = BMERequest(self.name)
+	e.status_info_req()
 
   def handle_charging_on(self,sender=None):
 	print "ac connected"

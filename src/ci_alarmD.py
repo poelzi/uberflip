@@ -46,7 +46,6 @@ import osso.alarmd as alarmd
 import ci_config
 
 
-#Setup the AlarmD D-Bus proxy object
 alarmdDBus = ci.session_bus.get_object("com.nokia.alarmd", "/com/nokia/alarmd");
 
 

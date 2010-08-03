@@ -10,7 +10,10 @@
 ######################################################################
 
 import os
-import osso
+try:
+	import osso
+except ImportError:
+	osso = None
 import ConfigParser
 
 

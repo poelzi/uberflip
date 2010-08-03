@@ -25,8 +25,6 @@ import dbus
 import dbus.service
 import dbus.mainloop.glib
 
-import osso
-
 class flipServiceObj(dbus.service.Object):
 	def __init__(self, conn, object_path='/org/maemo/flipclock/controller'):
 		dbus.service.Object.__init__(self, conn, object_path)

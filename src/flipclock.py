@@ -5,7 +5,10 @@ import pygame
 
 
 #Import extra libs for device interaction
-import osso
+try:
+	import osso
+except:
+	osso = None
 import dbus
 import dbus.service
 import gobject
@@ -36,8 +39,12 @@ import ci_eventHandlers
 #Import DBus service class
 import ci_dbus
 #Import DBus/AlarmD interface
-import ci_alarmD
-import alarmdModule as alarmd
+try:
+	import ci_alarmD
+	import alarmdModule as alarmd
+except ImportError:
+	print "disable alarmd support"
+	ci_alarmD = None
 
 #Import the device monitoring stuff
 import ci_deviceMonitor
@@ -108,11 +115,12 @@ def main():
 	#Setup osso callbacks for device state		
 
 	#ci.device.set_device_state_callback(ci_eventHandlers.deviceStateChangeEvent, system_inactivity=True, user_data=None)
-	device = osso.DeviceState(ci.osso_c)
-	try:
-		device.set_device_state_callback(ci_eventHandlers.deviceStateChangeEvent, system_inactivity=True, user_data=None)
-	except:
-		print "Your osso lib has an issue, power management disabled..."
+	if osso:
+		device = osso.DeviceState(ci.osso_c)
+		try:
+			device.set_device_state_callback(ci_eventHandlers.deviceStateChangeEvent, system_inactivity=True, user_data=None)
+		except:
+			print "Your osso lib has an issue, power management disabled..."
 	
 	
 	#Bind DBUS handlers

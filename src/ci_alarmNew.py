@@ -18,7 +18,10 @@ import ci_clock
 from datetime import date
 
 import os, sys
-import osso
+try:
+	import osso
+except ImportError:
+	osso = None
 
 
 ######################################################################

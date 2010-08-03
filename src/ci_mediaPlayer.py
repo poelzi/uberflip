@@ -21,22 +21,26 @@ import gst
 import gobject
 
 
-class mediaPlayer:
+class mediaPlayer(object):
 
 	### Method to initialize the gstreamer instance
 	def __init__(self, outputModule="mp3"):
 		self.status = self.setupPipe(outputModule)
-	
-	
+
+	def pipeline(self, output):
+		if False: # fixme hw detection n810
+			if (output == "mp3"):
+				return 'gnomevfssrc name="source" ! dspmp3sink name="sink"'
+			elif(output == "wav"):
+				return 'gnomevfssrc name="source" ! wavparse ! dsppcmsink name="sink"'
+		else:
+			return 'gnomevfssrc name="source" ! audioconvert ! autoaudiosink name="sink"'
+
 	def setupPipe(self, outputModule):
 		#Create the pipeline according to the mode
-		pipestr = ""
-		if (outputModule == "mp3"):
-			pipestr = 'gnomevfssrc name="source" ! dspmp3sink name="sink"'
-		elif(outputModule == "wav"):
-			pipestr = 'gnomevfssrc name="source" ! wavparse ! dsppcmsink name="sink"'
+		pipestr = self.pipeline(outputModule)
 	
-		if (pipestr == ""):
+		if not pipestr:
 			#not supported type, so abort
 			return 0
 	
@@ -44,6 +48,7 @@ class mediaPlayer:
 		try:
 			self.playerPipe = gst.parse_launch(pipestr)       
 		except gobject.GError, e:
+			self.playerPipe = None
 			print "could not create pipeline, " +str(e)
 			return 0
 	
@@ -78,6 +83,9 @@ class mediaPlayer:
 	### Method to load an mp3
 	def loadFile(self, theFile):
 		#stop player if currently playing to be safe
+		if not self.playerPipe:
+			return
+
 		if (self.playerPipe.get_state() == gst.STATE_PLAYING):
 			self.stopAudio()
 

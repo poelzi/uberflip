@@ -6,7 +6,10 @@
 ######################################################################
 
 #Import libs that we need
-import osso
+try:
+	import osso
+except ImportError:
+	osso = None
 import dbus
 import time as myTime
 import sys

@@ -13,7 +13,10 @@ from optparse import OptionParser
 import dbus
 import gobject
 
-import osso
+try:
+	import osso
+except ImportError:
+	osso = None
 from dbus.mainloop.glib import DBusGMainLoop
 ######################################################################
 # Flipclock 0.2.1 Inizializzazione variabili generiche
@@ -23,18 +26,22 @@ from dbus.mainloop.glib import DBusGMainLoop
 ######################################################################
 os.environ["SDL_VIDEO_X11_WMCLASS"]="flipclock"
 os.environ["SDL_AUDIODRIVER"]=""  #to trick pygame and make it believe I dont have an audio hardware
-tablet=1                          #Im not sure if this still have sense...
+tablet=0                          #Im not sure if this still have sense...
 sw_led=1                          #0=disable 1=enable
 animation=1                       #set 1 to enable animations (flipping, scrolling)
 
+userpath=os.path.expanduser("~")
 if tablet==1:
-  path="/usr/share/flipclock/"              #unix path (dont forget the '/' at the end)
-  #userpath=os.path.expanduser("~")         #BAD BOY PYTHON! BAD BOY!
-  userpath="/home/user/"
+	path="/usr/share/flipclock/"              #unix path (dont forget the '/' at the end)
+	#userpath=os.path.expanduser("~")         #BAD BOY PYTHON! BAD BOY!
 else:
-	path="../../../../share/flipclock/"       #sloppy local ./data/ path
-	userpath="../../../../share/flipclock/"
+	path=os.path.join(os.path.dirname(__file__), os.path.pardir, "share", "flipclock")       #sloppy local ./data/ path
+	#userpath="../../../../share/flipclock/"
 
+
+def theme(suffix):
+	#fixme
+	return os.path.join(path, suffix)
 
 ######################## Command Line Options ########################
 #
@@ -73,8 +80,9 @@ dbusSettings["service"] = "org.maemo.flipclock"
 dbusSettings["path"] = "/org/maemo/flipclock/controller"
 
 #Establish OSSO context and device controls
-osso_c = osso.Context("flip_context", "0.1.5", False)
-device = osso.DeviceState(osso_c)
+if osso:
+	osso_c = osso.Context("flip_context", "0.1.5", False)
+	device = osso.DeviceState(osso_c)
 
 ######################### Done DBUS init #############################
 
@@ -178,11 +186,11 @@ cl_coords = {"ore_decine":   (  4, 21),
              "minuti_decine":(416, 21),
              "minuti_unita": (605, 21)}
 cl_screen = pygame.display.get_surface()
-cl_numeri = [pygame.image.load(path+str(x)+".png") for x in range(18)]    #load the 10 digits __thanks PLOP
-cl_bground=pygame.image.load(path+"fondo.png").convert()      #Background
-s1=pygame.image.load(path+"semi1.png").convert()              #Frame1 flipanim
-s2=pygame.image.load(path+"semi2.png").convert()              #Frame2 flipanim
-s3=pygame.image.load(path+"semi3.png").convert()              #Frame3 flipanim
+cl_numeri = [pygame.image.load(theme("%s.png" %str(x))) for x in range(18)]    #load the 10 digits __thanks PLOP
+cl_bground=pygame.image.load(theme("fondo.png")).convert()      #Background
+s1=pygame.image.load(theme("semi1.png")).convert()              #Frame1 flipanim
+s2=pygame.image.load(theme("semi2.png")).convert()              #Frame2 flipanim
+s3=pygame.image.load(theme("semi3.png")).convert()              #Frame3 flipanim
 
 #*********Inizializzazione grafica ALARM Fullscreeen*****************
 al_coords = {"ore_decine":    ( 28, 109),
@@ -190,61 +198,62 @@ al_coords = {"ore_decine":    ( 28, 109),
              "minuti_decine": (258, 109),
              "minuti_unita":  (358, 109)}
 al_screen = pygame.display.get_surface()
-al_bground = pygame.image.load  (path+"fondoalarmB.png")    
-al_base  = pygame.image.load    (path+"base.png")
-al_numeri = [pygame.image.load  (path+"a"+str(x)+".png") for x in range(10)]    #load the 10 digits __thanks PLOP
+al_bground = pygame.image.load  (theme("fondoalarmB.png"))
+al_base  = pygame.image.load    (theme("base.png"))
+al_numeri = [pygame.image.load  (theme("a"+str(x)+".png")) for x in range(10)]    #load the 10 digits __thanks PLOP
 
 al_switch_coords=[664, 91,102,70,588,658]               # posx,posy,x,y,pos_on,pos_off  #Alarm SWITCH
 
 ################### UPDATED BY ROB ##############################
 #Place masks and actual switch images in two different lists
 switch_masks = {}
-switch_masks["alDark"] = pygame.image.load(path+"onoff.png")  #Dark (normal) switch mask
-switch_masks["alMed"] = pygame.image.load(path+"onoffMaskMed.png")  #Medium switch mask
-switch_masks["alLight"] = pygame.image.load(path+"onoffMaskLight.png")  #Dark (normal) switch mask
+switch_masks["alDark"] = pygame.image.load(theme("onoff.png"))  #Dark (normal) switch mask
+switch_masks["alMed"] = pygame.image.load(theme("onoffMaskMed.png"))  #Medium switch mask
+switch_masks["alLight"] = pygame.image.load(theme("onoffMaskLight.png"))  #Dark (normal) switch mask
 
 switch_images = {}
-switch_images["onoff"] = pygame.image.load(path+"onoff1.png")   	 # Switch on/off
-switch_images["1224"] = pygame.image.load(path+"1224.png")			 # Switch for 12/24 hour
-switch_images["ampm"] = pygame.image.load(path + "ampm.png")	 	 # Switch for AM/PM setting
-switch_images["loop"] = pygame.image.load(path + "loopSwitch.png")	 # Switch for loop/once setting
+switch_images["onoff"] = pygame.image.load(theme("onoff1.png"))   	 # Switch on/off
+switch_images["1224"] = pygame.image.load(theme("1224.png"))			 # Switch for 12/24 hour
+switch_images["ampm"] = pygame.image.load(theme("ampm.png"))	 	 # Switch for AM/PM setting
+switch_images["loop"] = pygame.image.load(theme("loopSwitch.png"))	 # Switch for loop/once setting
 
 flipFonts = {}
-flipFonts["big"] = pygame.font.Font (path+"nosnb.ttf",43)   #BIG Font, for Alarm Screen labels
-flipFonts["small"] = pygame.font.Font (path+"nosnb.ttf",20)   #Small Font, for Alarm Screen labels
+flipFonts["big"] = pygame.font.Font (theme("nosnb.ttf"),43)   #BIG Font, for Alarm Screen labels
+flipFonts["small"] = pygame.font.Font (theme("nosnb.ttf"),20)   #Small Font, for Alarm Screen labels
 
 
 alarmIcons = {}
-alarmIcons["on"] = pygame.image.load(path + "alarmIconOn.png")	#Small green icon to say alarm is active
-alarmIcons["off"] = pygame.image.load(path + "alarmIconOff.png") #Small red icon to say alarm is off
-alarmIcons["selected"] = pygame.image.load(path + "alarmChooserOn.png")  #Box to indicated selected alarm
-alarmIcons["nonSelected"] = pygame.image.load(path + "alarmChooserOff.png")  #Semi-transparent to indicate non-selected
+alarmIcons["on"] = pygame.image.load(theme("alarmIconOn.png"))	#Small green icon to say alarm is active
+alarmIcons["off"] = pygame.image.load(theme("alarmIconOff.png")) #Small red icon to say alarm is off
+alarmIcons["selected"] = pygame.image.load(theme("alarmChooserOn.png"))  #Box to indicated selected alarm
+alarmIcons["nonSelected"] = pygame.image.load(theme("alarmChooserOff.png"))  #Semi-transparent to indicate non-selected
 
 buttonImages = {}
-buttonImages["waitScreen"] = pygame.image.load(path + "waitScreen.png").convert_alpha()    #The "Wait" screen
-buttonImages["snoozeBG"] = pygame.image.load(path + "snoozeBox.png").convert_alpha()			   #The big old "snooze" button
+buttonImages["waitScreen"] = pygame.image.load(theme("waitScreen.png")).convert_alpha()    #The "Wait" screen
+buttonImages["snoozeBG"] = pygame.image.load(theme("snoozeBox.png")).convert_alpha()			   #The big old "snooze" button
 
 
-moods = [{"name":"Off","image":pygame.image.load(path + "m_0.png"), "color":(0,0,0), "nightColor":(0,0,250)},
-		 {"name":"Yellow","image":pygame.image.load(path + "m_yello.png"), "color":(250,125,0), "nightColor":(250,200, 0)},
-		 {"name":"Blue","image":pygame.image.load(path + "m_blue.png"), "color":(0,0,250), "nightColor":(0,0,250)},
-		 {"name":"Red","image":pygame.image.load(path + "m_red.png"), "color":(250,0,0), "nightColor":(240,0,0)},
-		 {"name":"Purple","image":pygame.image.load(path + "m_purpl.png"), "color":(250,0,125), "nightColor":(220,0,160)},
-		 {"name":"Green","image":pygame.image.load(path + "m_green.png"), "color":(0, 250,0), "nightColor":(0,220,0)}]
+moods = [{"name":"Off","image":pygame.image.load(theme("m_0.png")), "color":(0,0,0), "nightColor":(0,0,250)},
+		 {"name":"Yellow","image":pygame.image.load(theme("m_yello.png")), "color":(250,125,0), "nightColor":(250,200, 0)},
+		 {"name":"Blue","image":pygame.image.load(theme("m_blue.png")), "color":(0,0,250), "nightColor":(0,0,250)},
+		 {"name":"Red","image":pygame.image.load(theme("m_red.png")), "color":(250,0,0), "nightColor":(240,0,0)},
+		 {"name":"Purple","image":pygame.image.load(theme("m_purpl.png")), "color":(250,0,125), "nightColor":(220,0,160)},
+		 {"name":"Green","image":pygame.image.load(theme("m_green.png")), "color":(0, 250,0), "nightColor":(0,220,0)}]
 
 ############ Nixie related stuff
 nx_coords = {"ore_decine":   (  4, 21),
              "ore_unita":    (194, 21),
              "minuti_decine":(416, 21),
              "minuti_unita": (605, 21)}
-nx_numeri = [pygame.image.load(path+ "nixie/" +str(x)+".png") for x in range(10)]    #load the 10 digits __thanks PLOP
-nx_bground = pygame.image.load(path+"nixie/" + "fondo.png").convert_alpha()         #Background
+#FIME use themes
+#nx_numeri = [pygame.image.load(theme("nixie/%s.png" %str(x))) for x in range(10)]    #load the 10 digits __thanks PLOP
+#nx_bground = pygame.image.load(theme("nixie/fondo.png")).convert_alpha()         #Background
 
 
 ########## these should be redundant now...
-onoff_switch =[pygame.image.load(path+"onoff.png"),     # Alarm Switch graphics mask
-               pygame.image.load(path+"onoff1.png"),    # Switch on/off
-               pygame.image.load(path+"1224.png")]      # switch military time 12/24
+onoff_switch =[pygame.image.load(theme("onoff.png")),     # Alarm Switch graphics mask
+               pygame.image.load(theme("onoff1.png")),    # Switch on/off
+               pygame.image.load(theme("1224.png"))]      # switch military time 12/24
 
 
 mt_switch_coords=[664,194,102,70,588,658]               #posx,posy,x,y,pos_on,pos_off  #MTime SWITCH
@@ -267,24 +276,25 @@ ni_coords = {"ore_decine":   ( 42, 61),
              "minuti_decine":(455, 61),
              "minuti_unita": (616, 61)}
 ni_screen = pygame.display.get_surface()
-ni_numeri = [pygame.image.load(path+"n"+str(x)+"B.png") for x in range(10)]    #load the 10 digits __thanks PLOP
-ni_bground=pygame.image.load (path+"fondonightB.png").convert_alpha()             #Background
+ni_numeri = [pygame.image.load(theme("n"+str(x)+"B.png")) for x in range(10)]    #load the 10 digits __thanks PLOP
+ni_bground=pygame.image.load (theme("fondonightB.png")).convert_alpha()             #Background
 # ******* Inizializzazione grafica ABOUT Dullscreen*****************
 ab_screen = pygame.display.get_surface()
-ab_bground = pygame.image.load(path+"about.png")
-mood_bas= pygame.image.load  (path+"aboutlight.png")                       #Green aboutlight
+ab_bground = pygame.image.load(theme("about.png"))
+mood_bas= pygame.image.load  (theme("aboutlight.png"))                       #Green aboutlight
 # ******* Inizializzazione grafica WINDOW*****************
 wi_screen = pygame.display.get_surface()
-wi_bground = pygame.image.load (path+"fondowindo.png")
+wi_bground = pygame.image.load (theme("fondowindo.png"))
 # ******* Inizializzazione grafica HELP *****************
-gr_help = [pygame.image.load(path+"help"+str(x)+".png") for x in range(4)]
+gr_help = [pygame.image.load(theme("help"+str(x)+".png")) for x in range(4)]
 
 #***Inizializzazione pygame generic variables***  
-pygame.display.toggle_fullscreen()              #Full screen on
+#FIXME: fullscreen
+#pygame.display.toggle_fullscreen()              #Full screen on
 if tablet==1: pygame.mouse.set_visible(0)       #Hide the mouse pointer
 try:
-  font=pygame.font.Font (path+"nosnb.ttf",43)   #Boldish font for the alarm/date
-  font1=pygame.font.Font(path+"nosnb.ttf",20)   #small   font for the alarm/date
+  font=pygame.font.Font (theme("nosnb.ttf"),43)   #Boldish font for the alarm/date
+  font1=pygame.font.Font(theme("nosnb.ttf"),20)   #small   font for the alarm/date
 except:
   print "Can't load fonts"
 
@@ -325,11 +335,11 @@ try:
 	us_bground.fill((bgRed, bgGreen, bgBlue))
 except:
   if (len(userbg) > 0):
-	if tablet==1:
+	if tablet==1 and osso:
 		osso_c = osso.Context("osso_test_note", "0.0.1", False)
 		note = osso.SystemNote(osso_c)
 		result = note.system_note_dialog("Can't read the user wallpaper", type='notice') 
 		print result
 
   #Use default background
-  us_bground=pygame.image.load(path+"sosbg.png").convert()
+  us_bground=pygame.image.load(theme("sosbg.png")).convert()

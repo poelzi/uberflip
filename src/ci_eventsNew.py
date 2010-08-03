@@ -1,6 +1,9 @@
 import ci_init as ci
 import sys
-import osso
+try:
+	import osso
+except ImportError:
+	osso = None
 import os
 
 from datetime import date
@@ -26,7 +29,11 @@ import ci_config
 import copy
 
 #Load alarmD module
-import ci_alarmD
+try:
+	import ci_alarmD
+except:
+	print "disabled alarmd support"
+	ci_alarmD = None
 
 import pygame
 import pygame.event
@@ -1014,11 +1021,11 @@ screens[ci.FCMODE_NIGHT]["background"] = ci.ni_bground
 screens[ci.FCMODE_NIGHT]["buttons"] = clockScreenButtons
 screens[ci.FCMODE_NIGHT]["labels"] = clockNightScreenLabels
 
-screens[ci.FCMODE_NIXIE] = {}
-screens[ci.FCMODE_NIXIE]["title"] = "Nixie Clock Screen"
-screens[ci.FCMODE_NIXIE]["background"] = ci.nx_bground
-screens[ci.FCMODE_NIXIE]["buttons"] = clockScreenButtons
-screens[ci.FCMODE_NIXIE]["labels"] = clockScreenLabels
+# screens[ci.FCMODE_NIXIE] = {}
+# screens[ci.FCMODE_NIXIE]["title"] = "Nixie Clock Screen"
+# screens[ci.FCMODE_NIXIE]["background"] = ci.nx_bground
+# screens[ci.FCMODE_NIXIE]["buttons"] = clockScreenButtons
+# screens[ci.FCMODE_NIXIE]["labels"] = clockScreenLabels
 
 screens[ci.FCMODE_ALARM_CONTROL] = {}
 screens[ci.FCMODE_ALARM_CONTROL]["title"] = "Alarm Control Screen"
